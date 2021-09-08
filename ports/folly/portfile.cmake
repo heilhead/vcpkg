@@ -22,6 +22,7 @@ vcpkg_from_github(
         disable-non-underscore-posix-names.patch
         boost-1.70.patch
         fix-windows-minmax.patch
+        fix-msvc-std-20-support.patch
 )
 
 file(COPY
@@ -59,6 +60,7 @@ vcpkg_configure_cmake(
     PREFER_NINJA
     OPTIONS
         -DMSVC_USE_STATIC_RUNTIME=${MSVC_USE_STATIC_RUNTIME}
+        -DMSVC_LANGUAGE_VERSION=c++20
         -DCMAKE_DISABLE_FIND_PACKAGE_LibDwarf=ON
         -DCMAKE_DISABLE_FIND_PACKAGE_Libiberty=ON
         -DCMAKE_DISABLE_FIND_PACKAGE_LibAIO=ON

@@ -1,0 +1,73 @@
+diff --git a/CMake/FollyCompilerMSVC.cmake b/CMake/FollyCompilerMSVC.cmake
+index ec2ce1a1d..822e7eddf 100644
+--- a/CMake/FollyCompilerMSVC.cmake
++++ b/CMake/FollyCompilerMSVC.cmake
+@@ -39,14 +39,24 @@ if (NOT MSVC_FAVORED_ARCHITECTURE STREQUAL "blend" AND NOT MSVC_FAVORED_ARCHITEC
+   message(FATAL_ERROR "MSVC_FAVORED_ARCHITECTURE must be set to one of exactly, 'blend', 'AMD64', 'INTEL64', or 'ATOM'! Got '${MSVC_FAVORED_ARCHITECTURE}' instead!")
+ endif()
+ 
+-set(MSVC_LANGUAGE_VERSION "c++17" CACHE STRING "One of 'c++17', or 'c++latest'. This determines which version of C++ to compile as.")
++set(MSVC_LANGUAGE_VERSION "c++17" CACHE STRING "One of 'c++17', 'c++20', or 'c++latest'. This determines which version of C++ to compile as.")
+ set_property(
+   CACHE MSVC_LANGUAGE_VERSION
+   PROPERTY STRINGS
+     "c++17"
++    "c++20"
+     "c++latest"
+ )
+ 
++# `CMAKE_CXX_STANDARD` needs to stay in sync with the `MSVC_LANGUAGE_VERSION`, otherwise it overrides the `/std` flag.
++if(${MSVC_LANGUAGE_VERSION} STREQUAL "c++17")
++  set(CMAKE_CXX_STANDARD 17)
++elseif(${MSVC_LANGUAGE_VERSION} STREQUAL "c++20")
++  set(CMAKE_CXX_STANDARD 20)
++else()
++  set(CMAKE_CXX_STANDARD 23)
++endif()
++
+ ############################################################
+ # We need to adjust a couple of the default option sets.
+ ############################################################
+@@ -117,6 +127,7 @@ function(apply_folly_compile_options_to_target THETARGET)
+       /Zc:strictStrings # Don't allow conversion from a string literal to mutable characters.
+       /Zc:threadSafeInit # Enable thread-safe function-local statics initialization.
+       /Zc:throwingNew # Assume operator new throws on failure.
++      /Zc:__cplusplus # Fix incorrect version reported by MSVC `__cplusplus` define.
+ 
+       /permissive- # Be mean, don't allow bad non-standard stuff (C++/CLI, __declspec, etc. are all left intact).
+       /std:${MSVC_LANGUAGE_VERSION} # Build in the requested version of C++
+diff --git a/folly/Portability.h b/folly/Portability.h
+index c327cf8ba..58ae0b9ff 100644
+--- a/folly/Portability.h
++++ b/folly/Portability.h
+@@ -534,7 +534,7 @@ constexpr auto kCpplibVer = 0;
+ #define FOLLY_STORAGE_CONSTEXPR constexpr
+ #endif
+ 
+-#if __cplusplus >= 201703L
++#if FOLLY_CPLUSPLUS >= 201703L
+ // folly::coro requires C++17 support
+ #if defined(_WIN32) && defined(__clang__) && !defined(LLVM_COROUTINES)
+ // LLVM and MSVC coroutines are ABI incompatible, so for the MSVC implementation
+@@ -562,7 +562,7 @@ constexpr auto kCpplibVer = 0;
+ #endif
+ #else
+ #define FOLLY_HAS_COROUTINES 0
+-#endif // __cplusplus >= 201703L
++#endif // FOLLY_CPLUSPLUS >= 201703L
+ 
+ // MSVC 2017.5 && C++17
+ #if __cpp_noexcept_function_type >= 201510 || \
+diff --git a/folly/gen/Base-inl.h b/folly/gen/Base-inl.h
+index 9db386b90..43ea9fe63 100644
+--- a/folly/gen/Base-inl.h
++++ b/folly/gen/Base-inl.h
+@@ -2708,7 +2708,7 @@ constexpr detail::Indirect indirect{};
+ 
+ constexpr detail::Unwrap unwrap{};
+ 
+-constexpr detail::ToVirtualGen virtualize{};
++constexpr detail::ToVirtualGen virtualize;
+ 
+ template <class Number>
+ inline detail::Take take(Number count) {
