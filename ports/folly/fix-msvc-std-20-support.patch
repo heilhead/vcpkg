@@ -37,10 +37,10 @@ index ec2ce1a1d..822e7eddf 100644
        /permissive- # Be mean, don't allow bad non-standard stuff (C++/CLI, __declspec, etc. are all left intact).
        /std:${MSVC_LANGUAGE_VERSION} # Build in the requested version of C++
 diff --git a/folly/Portability.h b/folly/Portability.h
-index c327cf8ba..58ae0b9ff 100644
+index 6a72b0973..1307eb425 100644
 --- a/folly/Portability.h
 +++ b/folly/Portability.h
-@@ -534,7 +534,7 @@ constexpr auto kCpplibVer = 0;
+@@ -531,7 +531,7 @@ constexpr auto kCpplibVer = 0;
  #define FOLLY_STORAGE_CONSTEXPR constexpr
  #endif
  
@@ -49,7 +49,7 @@ index c327cf8ba..58ae0b9ff 100644
  // folly::coro requires C++17 support
  #if defined(_WIN32) && defined(__clang__) && !defined(LLVM_COROUTINES)
  // LLVM and MSVC coroutines are ABI incompatible, so for the MSVC implementation
-@@ -562,7 +562,7 @@ constexpr auto kCpplibVer = 0;
+@@ -559,7 +559,7 @@ constexpr auto kCpplibVer = 0;
  #endif
  #else
  #define FOLLY_HAS_COROUTINES 0
@@ -59,10 +59,10 @@ index c327cf8ba..58ae0b9ff 100644
  // MSVC 2017.5 && C++17
  #if __cpp_noexcept_function_type >= 201510 || \
 diff --git a/folly/gen/Base-inl.h b/folly/gen/Base-inl.h
-index 9db386b90..43ea9fe63 100644
+index 8418a886e..0b74de55b 100644
 --- a/folly/gen/Base-inl.h
 +++ b/folly/gen/Base-inl.h
-@@ -2708,7 +2708,7 @@ constexpr detail::Indirect indirect{};
+@@ -2713,7 +2713,7 @@ constexpr detail::Indirect indirect{};
  
  constexpr detail::Unwrap unwrap{};
  
